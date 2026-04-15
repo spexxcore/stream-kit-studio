@@ -350,3 +350,77 @@
   font-size: 0.875rem;
   margin-top: 16px;
 }
+
+/* Logo upload */
+.uploadZone {
+  border: 1px dashed var(--border-bright);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 0.875rem;
+  color: var(--text-1);
+}
+
+.uploadZone:hover {
+  border-color: var(--green);
+  background: var(--green-glow);
+  color: var(--text-0);
+}
+
+.uploadIcon { color: var(--green); }
+.uploadSub { font-size: 0.75rem; color: var(--text-2); }
+
+.logoPreviewWrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+}
+
+.logoPreview {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  background: #111;
+}
+
+.clearLogo {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-1);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s;
+  margin-left: auto;
+}
+.clearLogo:hover { border-color: var(--red); color: var(--red); }
+
+.summaryNote {
+  font-size: 0.78rem !important;
+  color: var(--text-1) !important;
+  font-weight: 400 !important;
+  max-width: 300px;
+  text-align: right;
+  line-height: 1.5;
+}
+
+.summaryLogo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  background: #111;
+}

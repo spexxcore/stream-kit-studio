@@ -17,7 +17,7 @@ export const handler = async (event) => {
     return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) }
   }
 
-  const { brandName, mascot, colors, vibe, style, streamPlatform } = body
+  const { brandName, mascot, colors, vibe, style, streamPlatform, extraDetails, logoBase64 } = body
 
   if (!brandName || !vibe) {
     return { statusCode: 400, body: JSON.stringify({ error: 'brandName and vibe are required' }) }
@@ -40,19 +40,63 @@ You create complete visual identity systems for streamers, gaming communities, a
 Respond ONLY with a valid JSON object, no markdown, no backticks, no explanation.`,
         messages: [{
           role: 'user',
-          content: `Create a complete streaming brand kit brief for:
+          content: logoBase64 ? [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: 'image/png', data: logoBase64 }
+            },
+            {
+              type: 'text',
+              text: `The image above is the client's existing logo — use it as a style reference and build upon it.
+
+Create a complete streaming brand kit brief for:
 - Brand Name: ${brandName}
 - Mascot/Character: ${mascot || 'none specified'}
 - Color Preferences: ${colors || 'choose based on vibe'}
 - Vibe/Theme: ${vibe}
 - Art Style: ${style || 'modern esports'}
 - Platform: ${streamPlatform || 'Twitch/general'}
+- Additional client notes: ${extraDetails || 'none'}
+
+Incorporate the existing logo's style, shape, and feel into the new kit. Evolve it, don't ignore it.
 
 Return this exact JSON structure:
 {
   "brandSummary": "2-3 sentence brand identity description",
   "primaryColor": "#hexcode",
-  "secondaryColor": "#hexcode", 
+  "secondaryColor": "#hexcode",
+  "accentColor": "#hexcode",
+  "backgroundColor": "#hexcode",
+  "fontPrimary": "Google Font name for headers",
+  "fontSecondary": "Google Font name for body",
+  "logoPrompt": "Detailed Flux image generation prompt for logo (square, no text, transparent-friendly, high detail, evolved from the uploaded reference)",
+  "mascotPrompt": "Detailed Flux prompt for mascot/character art (no background, game art style)",
+  "overlayStyle": "Description of overlay visual language",
+  "kitAssets": {
+    "logo": { "description": "What the logo looks like", "style": "badge/emblem/minimal/etc" },
+    "overlay": { "description": "Main stream overlay description", "elements": ["webcam frame", "info bar", "etc"] },
+    "alerts": { "description": "Alert animation style", "types": ["follow", "sub", "donation"] },
+    "panels": { "description": "Panel style", "count": 6 },
+    "banner": { "description": "Channel banner description" }
+  }
+}`
+            }
+          ] : [{
+            type: 'text',
+            text: `Create a complete streaming brand kit brief for:
+- Brand Name: ${brandName}
+- Mascot/Character: ${mascot || 'none specified'}
+- Color Preferences: ${colors || 'choose based on vibe'}
+- Vibe/Theme: ${vibe}
+- Art Style: ${style || 'modern esports'}
+- Platform: ${streamPlatform || 'Twitch/general'}
+- Additional client notes: ${extraDetails || 'none'}
+
+Return this exact JSON structure:
+{
+  "brandSummary": "2-3 sentence brand identity description",
+  "primaryColor": "#hexcode",
+  "secondaryColor": "#hexcode",
   "accentColor": "#hexcode",
   "backgroundColor": "#hexcode",
   "fontPrimary": "Google Font name for headers",
@@ -68,6 +112,7 @@ Return this exact JSON structure:
     "banner": { "description": "Channel banner description" }
   }
 }`
+          }]
         }]
       })
     })

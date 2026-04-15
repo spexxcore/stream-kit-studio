@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Sparkles, Zap, Layers, ChevronRight } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { Sparkles, Zap, Layers, ChevronRight, Upload, X } from 'lucide-react'
 import styles from './BuilderPage.module.css'
 
 const VIBES = [
@@ -26,11 +26,13 @@ const STYLES = [
 export default function BuilderPage({ onKitGenerated }) {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState({
-    brandName: '', mascot: '', colors: '', vibe: '', vibeCustom: '', style: 'esports', streamPlatform: 'Twitch'
+    brandName: '', mascot: '', colors: '', vibe: '', vibeCustom: '', style: 'esports', streamPlatform: 'Twitch',
+    extraDetails: '', logoBase64: '', logoPreview: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [loadingMsg, setLoadingMsg] = useState('')
+  const fileInputRef = useRef(null)
 
   const loadingMsgs = [
     'Asking Claude to build your brand brief...',
@@ -41,6 +43,22 @@ export default function BuilderPage({ onKitGenerated }) {
   ]
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const base64 = ev.target.result.split(',')[1]
+      setForm(f => ({ ...f, logoBase64: base64, logoPreview: ev.target.result }))
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const clearLogo = () => {
+    setForm(f => ({ ...f, logoBase64: '', logoPreview: '' }))
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   const canNext = () => {
     if (step === 1) return form.brandName.trim().length > 1
@@ -163,6 +181,32 @@ export default function BuilderPage({ onKitGenerated }) {
                     <option>Multi-platform</option>
                   </select>
                 </div>
+                <div className={styles.field}>
+                  <label>Existing Logo <span className={styles.opt}>optional — upload to use as reference</span></label>
+                  {form.logoPreview ? (
+                    <div className={styles.logoPreviewWrap}>
+                      <img src={form.logoPreview} alt="Uploaded logo" className={styles.logoPreview} />
+                      <button className={styles.clearLogo} onClick={clearLogo}><X size={14} /> Remove</button>
+                    </div>
+                  ) : (
+                    <div className={styles.uploadZone} onClick={() => fileInputRef.current?.click()}>
+                      <Upload size={18} className={styles.uploadIcon} />
+                      <span>Click to upload your logo</span>
+                      <span className={styles.uploadSub}>PNG, JPG — AI will use it as style reference</span>
+                      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'none' }} />
+                    </div>
+                  )}
+                </div>
+                <div className={styles.field}>
+                  <label>Additional Details <span className={styles.opt}>optional</span></label>
+                  <textarea
+                    className={`${styles.input} ${styles.textarea}`}
+                    placeholder="e.g. Keep the hexagon frame from my old logo, add Matrix green code rain, gorilla in a suit with shades, reflect code in the lenses..."
+                    value={form.extraDetails}
+                    onChange={e => set('extraDetails', e.target.value)}
+                    rows={3}
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -227,6 +271,8 @@ export default function BuilderPage({ onKitGenerated }) {
                 {form.colors && <div className={styles.summaryRow}><span>Colors</span><span>{form.colors}</span></div>}
                 <div className={styles.summaryRow}><span>Style</span><span>{STYLES.find(s=>s.id===form.style)?.label}</span></div>
                 <div className={styles.summaryRow}><span>Platform</span><span>{form.streamPlatform}</span></div>
+                {form.extraDetails && <div className={styles.summaryRow}><span>Notes</span><span className={styles.summaryNote}>{form.extraDetails}</span></div>}
+                {form.logoPreview && <div className={styles.summaryRow}><span>Logo ref</span><img src={form.logoPreview} alt="logo" className={styles.summaryLogo} /></div>}
               </div>
               <div className={styles.kitList}>
                 <p className={styles.kitListTitle}>Your kit will include:</p>
