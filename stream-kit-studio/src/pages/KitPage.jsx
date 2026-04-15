@@ -71,18 +71,30 @@ export default function KitPage({ kitData, onReset }) {
     generateAsset(type, isScene)
   }
 
-  // Fixed download — uses a link with data URI instead of blob URL
   const downloadAsset = (type) => {
     const html = generatedAssets[type]
     if (!html) return
-    const filename = `${brief.brandName.toLowerCase().replace(/\s+/g, '-')}-${type}.html`
-    const dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(html)
-    const a = document.createElement('a')
-    a.setAttribute('href', dataUri)
-    a.setAttribute('download', filename)
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
+    const safeName = (brief?.brandName || 'stream-kit').toLowerCase().replace(/[^a-z0-9]/g, '-')
+    const filename = `${safeName}-${type}.html`
+    try {
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url) }, 100)
+    } catch {
+      // Fallback to data URI
+      const dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(html)
+      const a = document.createElement('a')
+      a.setAttribute('href', dataUri)
+      a.setAttribute('download', filename)
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    }
   }
 
   const downloadImage = (url, name) => {
