@@ -82,15 +82,23 @@ Output ONLY the complete HTML file, no explanation.`
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-5',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 8000,
-        system: 'You are an expert stream overlay designer and frontend developer. You write clean, production-ready HTML/CSS. Output only the requested file contents with no explanation, no markdown fences, no commentary.',
+        system: 'You are an expert stream overlay designer and frontend developer. You write clean, production-ready HTML/CSS. Output only the requested file contents. Start your response with <!DOCTYPE html> and nothing else before it. No markdown fences, no backticks, no commentary before or after the HTML.',
         messages: [{ role: 'user', content: prompt }]
       })
     })
 
     const data = await claudeRes.json()
-    const html = data.content[0].text
+    let html = data.content[0].text
+
+    // Strip any markdown fences or preamble Claude might have added
+    html = html.replace(/^```html\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim()
+    // If Claude added text before the doctype, strip it
+    const doctypeIdx = html.indexOf('<!DOCTYPE')
+    if (doctypeIdx > 0) html = html.slice(doctypeIdx)
+    const htmlTagIdx = html.indexOf('<html')
+    if (htmlTagIdx > 0 && doctypeIdx === -1) html = html.slice(htmlTagIdx)
 
     return {
       statusCode: 200,
