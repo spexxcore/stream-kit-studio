@@ -65,7 +65,85 @@ Requirements:
 - Primary: ${brief.primaryColor}, Secondary: ${brief.secondaryColor}, Accent: ${brief.accentColor}
 - Font: ${brief.fontPrimary}
 - Download as screenshot button using html2canvas from CDN
-Output ONLY the complete HTML file, no explanation.`
+Output ONLY the complete HTML file, no explanation.`,
+
+    'starting-soon': `Create a full-screen "Starting Soon" stream scene for OBS browser source (1920x1080).
+Brand: ${JSON.stringify(brief)}
+Requirements:
+- Full 1920x1080 scene, NOT transparent — use background color ${brief.backgroundColor}
+- Large animated "Starting Soon" or "Stream Starting Soon" heading
+- Brand name "${brief.brandName}" prominently displayed
+- Animated countdown or pulsing elements — CSS keyframes only
+- Matrix/cyber animated background elements matching the brand vibe
+- Social media handle or "Follow along" text area
+- Primary: ${brief.primaryColor}, Accent: ${brief.accentColor}
+- Font: ${brief.fontPrimary} from Google Fonts
+- Should look like a professional pre-stream screen
+Output ONLY the complete HTML file, no explanation.`,
+
+    brb: `Create a full-screen "BRB" (Be Right Back) stream scene for OBS browser source (1920x1080).
+Brand: ${JSON.stringify(brief)}
+Requirements:
+- Full 1920x1080 scene, NOT transparent — use background color ${brief.backgroundColor}
+- Large "BRB" or "Be Right Back" text with animated effects
+- Brand name "${brief.brandName}" displayed
+- Looping animated background (CSS keyframes only) matching brand vibe
+- Chill/ambient feel but still on-brand
+- "Back Soon" or similar supportive text
+- Primary: ${brief.primaryColor}, Accent: ${brief.accentColor}
+- Font: ${brief.fontPrimary} from Google Fonts
+Output ONLY the complete HTML file, no explanation.`,
+
+    ending: `Create a full-screen stream ending/outro scene for OBS browser source (1920x1080).
+Brand: ${JSON.stringify(brief)}
+Requirements:
+- Full 1920x1080 scene, NOT transparent — use background color ${brief.backgroundColor}
+- "Thanks for watching!" or "Stream Over" hero text with animation
+- Brand name "${brief.brandName}" prominently displayed
+- Social links section (placeholder handles) — follow, subscribe, join Discord etc.
+- Animated outro elements — CSS keyframes
+- Warm but on-brand feel
+- Primary: ${brief.primaryColor}, Accent: ${brief.accentColor}
+- Font: ${brief.fontPrimary} from Google Fonts
+Output ONLY the complete HTML file, no explanation.`,
+
+    'just-chatting': `Create a full-screen "Just Chatting" stream overlay for OBS browser source (1920x1080).
+Brand: ${JSON.stringify(brief)}
+Requirements:
+- Full 1920x1080 overlay, transparent background (body { background: transparent; })
+- Large webcam frame area (bottom-left, ~400x300px) with decorative border matching brand
+- Remaining space can have subtle animated brand elements
+- "Just Chatting" scene label somewhere tasteful
+- Brand name "${brief.brandName}" displayed
+- Chat-friendly, relaxed layout — less cluttered than a game overlay
+- Primary: ${brief.primaryColor}, Accent: ${brief.accentColor}
+- Font: ${brief.fontPrimary} from Google Fonts
+Output ONLY the complete HTML file, no explanation.`,
+
+    'live-scene': `Create a full-screen live gameplay stream overlay for OBS browser source (1920x1080).
+Brand: ${JSON.stringify(brief)}
+Requirements:
+- Full 1920x1080 overlay, transparent background (body { background: transparent; })
+- The CENTER of the screen must be fully transparent (for game to show through)
+- Webcam frame bottom-left (~280x210px) with styled border
+- Top bar: brand name "${brief.brandName}" + subtle animated accent
+- Bottom bar: info strip for game name, viewer count placeholders
+- Corner decorative accents — subtle, not blocking gameplay
+- Primary: ${brief.primaryColor}, Accent: ${brief.accentColor}
+- Font: ${brief.fontPrimary} from Google Fonts
+Output ONLY the complete HTML file, no explanation.`,
+
+    'extra-scene': `Create a full-screen extra/intermission stream scene for OBS browser source (1920x1080).
+Brand: ${JSON.stringify(brief)}
+Requirements:
+- Full 1920x1080 scene, NOT transparent — use background color ${brief.backgroundColor}
+- "Intermission" or "Taking a Break" text with animated styling
+- Brand name "${brief.brandName}" displayed
+- Interesting animated background — looping CSS animations matching vibe
+- Could include a fun message, quote, or placeholder for custom content
+- Primary: ${brief.primaryColor}, Accent: ${brief.accentColor}
+- Font: ${brief.fontPrimary} from Google Fonts
+Output ONLY the complete HTML file, no explanation.`,
   }
 
   const prompt = prompts[assetType]
