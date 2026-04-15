@@ -1,0 +1,71 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-0);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  height: 54px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-1);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  gap: 24px;
+}
+
+.navLogo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.navLogoIcon { color: var(--green); }
+
+.navTabs {
+  display: flex;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 3px;
+}
+
+.navTab {
+  background: transparent;
+  border: none;
+  color: var(--text-1);
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.navTab:hover { color: var(--text-0); }
+
+.navActive {
+  background: var(--bg-4) !important;
+  color: var(--text-0) !important;
+}
+
+.navRight {
+  margin-left: auto;
+}
+
+.navTagline {
+  font-size: 0.75rem;
+  color: var(--text-2);
+}

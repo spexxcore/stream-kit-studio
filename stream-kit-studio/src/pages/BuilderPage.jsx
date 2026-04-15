@@ -113,15 +113,6 @@ export default function BuilderPage({ onKitGenerated }) {
 
   return (
     <div className={styles.page}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.logo}>
-          <Layers size={20} className={styles.logoIcon} />
-          <span>Stream Kit Studio</span>
-        </div>
-        <div className={styles.tagline}>AI-powered stream branding in minutes</div>
-      </header>
-
       <main className={styles.main}>
         {/* Progress */}
         <div className={styles.progress}>
