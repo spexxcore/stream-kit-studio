@@ -117,7 +117,7 @@ export default function KitPage({ kitData, onReset }) {
     else setActiveScene(null)
 
     try {
-      const res = await fetch('/.netlify/functions/generate-overlay', {
+      const res = await fetch('/api/generate-overlay', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ brief, assetType: type })

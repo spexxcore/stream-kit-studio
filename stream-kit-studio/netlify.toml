@@ -2,6 +2,7 @@
   command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
+  edge_functions = "netlify/edge-functions"
 
 [dev]
   command = "npm run dev"
@@ -11,11 +12,12 @@
 [functions]
   node_bundler = "esbuild"
 
-[functions."generate-overlay"]
-  timeout = 60
-
 [functions."generate-kit"]
   timeout = 60
+
+[[edge_functions]]
+  path = "/api/generate-overlay"
+  function = "generate-overlay"
 
 [[redirects]]
   from = "/*"
