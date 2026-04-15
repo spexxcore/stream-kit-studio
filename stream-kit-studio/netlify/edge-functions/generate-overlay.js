@@ -295,9 +295,11 @@ export default async (request, context) => {
         ANTHROPIC_KEY,
         'claude-haiku-4-5-20251001',
         `You are an expert frontend developer. You will receive an HTML stream overlay file and a change request. Make ONLY the requested change and return the COMPLETE updated HTML file. Do not add commentary. Start with <!DOCTYPE html>.`,
-        `CHANGE REQUEST: ${patchRequest}\n\nHTML FILE:\n${currentHtml}`
+        `CHANGE REQUEST: ${patchRequest}\n\nHTML FILE:\n${currentHtml}`,
+        16000
       )
-      return new Response(JSON.stringify({ html: cleanHtml(patched), assetType: 'patch' }), {
+      const patchedHtml = cleanHtml(patched)
+      return new Response(JSON.stringify({ html: patchedHtml, assetType: 'patch' }), {
         status: 200, headers: { 'Content-Type': 'application/json' }
       })
     }
@@ -316,10 +318,25 @@ export default async (request, context) => {
       })
     }
 
-    const raw = await streamClaude(ANTHROPIC_KEY, 'claude-sonnet-4-6', SYSTEM, prompt, 8000)
+    const raw = await streamClaude(ANTHROPIC_KEY, 'claude-sonnet-4-6', SYSTEM, prompt, 16000)
     const html = cleanHtml(raw)
 
-    return new Response(JSON.stringify({ html, assetType }), {
+    if (!html || html.length < 100) {
+      return new Response(JSON.stringify({ error: 'Generated HTML was empty or too short. Try regenerating.' }), {
+        status: 500, headers: { 'Content-Type': 'application/json' }
+      })
+    }
+
+    let responseBody
+    try {
+      responseBody = JSON.stringify({ html, assetType })
+    } catch (jsonErr) {
+      // If JSON.stringify fails (rare), return as escaped string
+      const escaped = html.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r')
+      responseBody = `{"html":"${escaped}","assetType":"${assetType}"}`
+    }
+
+    return new Response(responseBody, {
       status: 200, headers: { 'Content-Type': 'application/json' }
     })
 
