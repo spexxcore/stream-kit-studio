@@ -125,7 +125,19 @@ export default function KitPage({ kitData, onReset }) {
     }
   }
 
-  const colors = [
+  // Scale iframe content to fit preview container
+  const iframeRef = useRef(null)
+  useEffect(() => {
+    const iframe = iframeRef.current
+    if (!iframe) return
+    const scale = () => {
+      const w = iframe.offsetWidth
+      iframe.style.height = `${w * (9/16)}px`
+    }
+    scale()
+    window.addEventListener('resize', scale)
+    return () => window.removeEventListener('resize', scale)
+  }, [currentActive, generatedAssets])
     { label: 'Primary', hex: brief.primaryColor },
     { label: 'Secondary', hex: brief.secondaryColor },
     { label: 'Accent', hex: brief.accentColor },
@@ -329,7 +341,13 @@ export default function KitPage({ kitData, onReset }) {
                     </div>
                   ) : generatedAssets[currentActive] ? (
                     viewMode === 'preview' ? (
-                      <iframe srcDoc={generatedAssets[currentActive]} className={styles.iframe} title={`${currentActive} preview`} sandbox="allow-scripts" />
+                      <iframe
+                      ref={iframeRef}
+                      srcDoc={generatedAssets[currentActive]}
+                      className={styles.iframe}
+                      title={`${currentActive} preview`}
+                      sandbox="allow-scripts"
+                    />
                     ) : (
                       <pre className={styles.codeView}><code>{generatedAssets[currentActive]}</code></pre>
                     )

@@ -370,7 +370,7 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--bg-1);
-  min-height: 520px;
+  min-height: 680px;
 }
 
 .previewToolbar {
@@ -454,20 +454,21 @@
   display: flex;
   flex: 1;
   min-height: 0;
-  height: 480px;
 }
 
 .previewFrame {
   flex: 1;
   position: relative;
   overflow: hidden;
+  background: #0a0a0a;
 }
 
 .iframe {
   width: 100%;
-  height: 100%;
   border: none;
+  display: block;
   background: #111;
+  /* height set dynamically via JS to maintain 16:9 */
 }
 
 .codeView {
