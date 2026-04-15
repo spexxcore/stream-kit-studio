@@ -52,20 +52,28 @@ const cleanHtml = (raw) => {
 
 const SYSTEM = `You are a world-class stream overlay designer and frontend developer. You create stunning, professional, production-ready stream overlays used by top streamers. Your HTML files are self-contained, visually impressive, and technically perfect. Always start with <!DOCTYPE html>. No markdown, no backticks, no commentary — ONLY the HTML file.`
 
-const buildPrompt = (brief, assetType) => {
+const buildPrompt = (brief, assetType, logoDataUri = null) => {
   const b = brief
   const font = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(b.fontPrimary)}:wght@400;600;700;900&family=${encodeURIComponent(b.fontSecondary)}&display=swap`
   const colors = `Primary: ${b.primaryColor} | Secondary: ${b.secondaryColor} | Accent: ${b.accentColor} | Background: ${b.backgroundColor}`
   const brand = `Brand: "${b.brandName}" | Vibe: ${b.brandSummary} | Overlay style: ${b.overlayStyle}`
+  const logoTag = logoDataUri
+    ? `<img src="${logoDataUri}" alt="logo" style="width:80px;height:80px;object-fit:contain;" />`
+    : `<div style="width:80px;height:80px;background:${b.accentColor};border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-weight:bold;font-size:10px;color:#000;">${b.brandName.slice(0,3).toUpperCase()}</div>`
+
+  const logoNote = logoDataUri
+    ? `IMPORTANT: A base64-encoded logo image is provided. Use this exact HTML tag wherever the logo should appear: ${logoTag}`
+    : `No logo image provided — use a styled text/CSS placeholder for the logo area.`
 
   const shared = `
 BRAND: ${brand}
 COLORS: ${colors}
 FONTS: Import from ${font} — use ${b.fontPrimary} for headings, ${b.fontSecondary} for body
+LOGO: ${logoNote}
 QUALITY REQUIREMENTS:
 - Pixel-perfect, professional esports quality
 - Rich CSS animations using @keyframes (no JS animation libraries)
-- Sharp typography with letter-spacing and proper hierarchy  
+- Sharp typography with letter-spacing and proper hierarchy
 - Glowing effects using box-shadow and text-shadow with the accent color
 - Subtle scanline or noise texture using CSS gradients
 - All colors must match the brand exactly — no generic colors`
@@ -281,7 +289,10 @@ export default async (request, context) => {
     })
   }
 
-  const { brief, assetType, currentHtml, patchRequest } = body
+  const { brief, assetType, currentHtml, patchRequest, assets } = body
+
+  // Logo data URI to embed directly in HTML — avoids all CORS issues
+  const logoDataUri = assets?.logoBase64 || assets?.uploadedLogoDataUri || null
 
   try {
     // PATCH — apply chat change request to existing HTML
@@ -311,7 +322,7 @@ export default async (request, context) => {
       })
     }
 
-    const prompt = buildPrompt(brief, assetType)
+    const prompt = buildPrompt(brief, assetType, logoDataUri)
     if (!prompt) {
       return new Response(JSON.stringify({ error: `Unknown assetType: ${assetType}` }), {
         status: 400, headers: { 'Content-Type': 'application/json' }

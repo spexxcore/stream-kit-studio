@@ -54,7 +54,7 @@ export default function KitPage({ kitData, onReset }) {
       const res = await fetch('/api/generate-overlay', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ brief, assetType: type })
+        body: JSON.stringify({ brief, assetType: type, assets })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -74,26 +74,27 @@ export default function KitPage({ kitData, onReset }) {
   const downloadAsset = (type) => {
     const html = generatedAssets[type]
     if (!html) return
-    const safeName = (brief?.brandName || 'stream-kit').toLowerCase().replace(/[^a-z0-9]/g, '-')
+    const safeName = (brief?.brandName || 'stream-kit').toLowerCase().replace(/[^a-z0-9]+/g, '-')
     const filename = `${safeName}-${type}.html`
     try {
-      const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = filename
-      document.body.appendChild(a)
-      a.click()
-      setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url) }, 100)
-    } catch {
-      // Fallback to data URI
-      const dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(html)
-      const a = document.createElement('a')
-      a.setAttribute('href', dataUri)
-      a.setAttribute('download', filename)
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
+      const blob = new Blob([html], { type: 'text/html' })
+      const url = window.URL.createObjectURL(blob)
+      const link = window.document.createElement('a')
+      link.style.display = 'none'
+      link.href = url
+      link.setAttribute('download', filename)
+      window.document.body.appendChild(link)
+      link.click()
+      window.document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (e) {
+      console.error('Download failed:', e)
+      // Last resort — open in new tab so they can save manually
+      const win = window.open('', '_blank')
+      if (win) {
+        win.document.write(html)
+        win.document.close()
+      }
     }
   }
 
