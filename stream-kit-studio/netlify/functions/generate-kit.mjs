@@ -122,19 +122,32 @@ Return this exact JSON structure:
     const brief = JSON.parse(rawText)
 
     // Step 2: Generate logo image via fal.ai Flux
-    const falLogoRes = await fetch('https://fal.run/fal-ai/flux/schnell', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Key ${FAL_KEY}`
-      },
-      body: JSON.stringify({
-        prompt: `${brief.logoPrompt}, esports logo, game badge, centered composition, black background, ultra detailed, professional, 4k`,
-        image_size: 'square_hd',
-        num_inference_steps: 4,
-        num_images: 1
+    // If client uploaded a logo, use it as image-to-image reference
+    let falLogoRes
+    if (logoBase64) {
+      falLogoRes = await fetch('https://fal.run/fal-ai/flux/dev/image-to-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Key ${FAL_KEY}` },
+        body: JSON.stringify({
+          prompt: `${brief.logoPrompt}, esports logo, game badge, centered composition, black background, ultra detailed, professional, 4k`,
+          image_url: `data:image/png;base64,${logoBase64}`,
+          strength: 0.75,
+          num_inference_steps: 28,
+          num_images: 1
+        })
       })
-    })
+    } else {
+      falLogoRes = await fetch('https://fal.run/fal-ai/flux/schnell', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Key ${FAL_KEY}` },
+        body: JSON.stringify({
+          prompt: `${brief.logoPrompt}, esports logo, game badge, centered composition, black background, ultra detailed, professional, 4k`,
+          image_size: 'square_hd',
+          num_inference_steps: 4,
+          num_images: 1
+        })
+      })
+    }
 
     const falLogoData = await falLogoRes.json()
     const logoImageUrl = falLogoData.images?.[0]?.url || null

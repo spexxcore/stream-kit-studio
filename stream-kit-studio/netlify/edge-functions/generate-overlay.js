@@ -21,7 +21,46 @@ export default async (request, context) => {
     })
   }
 
-  const { brief, assetType } = body
+  const { brief, assetType, currentHtml, patchRequest } = body
+
+  // Handle chat patch requests
+  if (assetType === 'patch') {
+    if (!currentHtml || !patchRequest) {
+      return new Response(JSON.stringify({ error: 'Missing currentHtml or patchRequest' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
+    }
+
+    const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 8000,
+        stream: true,
+        system: 'You are an expert frontend developer. The user will give you an HTML file and a change request. Apply the change and return the COMPLETE updated HTML file. Start with <!DOCTYPE html> — no markdown, no backticks, no commentary.',
+        messages: [{ role: 'user', content: `Here is the current HTML file:\n\n${currentHtml}\n\nPlease make this change: ${patchRequest}\n\nReturn the complete updated HTML file.` }]
+      })
+    })
+
+    const reader2 = claudeRes.body.getReader()
+    const decoder2 = new TextDecoder()
+    let patchedText = ''
+    while (true) {
+      const { done, value } = await reader2.read()
+      if (done) break
+      const chunk = decoder2.decode(value, { stream: true })
+      for (const line of chunk.split('\n')) {
+        if (line.startsWith('data: ')) {
+          try {
+            const parsed = JSON.parse(line.slice(6).trim())
+            if (parsed.type === 'content_block_delta' && parsed.delta?.text) patchedText += parsed.delta.text
+          } catch {}
+        }
+      }
+    }
+    let html = patchedText.replace(/^```html\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim()
+    const di = html.indexOf('<!DOCTYPE'); if (di > 0) html = html.slice(di)
+    return new Response(JSON.stringify({ html, assetType: 'patch' }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+  }
 
   const getPrompt = (brief, assetType) => {
     const prompts = {
