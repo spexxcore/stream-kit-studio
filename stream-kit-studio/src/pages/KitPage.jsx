@@ -138,6 +138,8 @@ export default function KitPage({ kitData, onReset }) {
     window.addEventListener('resize', scale)
     return () => window.removeEventListener('resize', scale)
   }, [currentActive, generatedAssets])
+
+  const colors = [
     { label: 'Primary', hex: brief.primaryColor },
     { label: 'Secondary', hex: brief.secondaryColor },
     { label: 'Accent', hex: brief.accentColor },
