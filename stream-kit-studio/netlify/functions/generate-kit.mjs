@@ -4,9 +4,9 @@ export const handler = async (event) => {
   }
 
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY
-  const FAL_KEY = process.env.FAL_API_KEY
+  const TOGETHER_KEY = process.env.TOGETHER_API_KEY
 
-  if (!ANTHROPIC_KEY || !FAL_KEY) {
+  if (!ANTHROPIC_KEY || !TOGETHER_KEY) {
     return { statusCode: 500, body: JSON.stringify({ error: 'Missing API keys' }) }
   }
 
@@ -121,55 +121,39 @@ Return this exact JSON structure:
     const rawText = claudeData.content[0].text.replace(/```json|```/g, '').trim()
     const brief = JSON.parse(rawText)
 
-    // Step 2: Generate logo image via fal.ai Flux
-    // If client uploaded a logo, use it as image-to-image reference
-    let falLogoRes
-    if (logoBase64) {
-      falLogoRes = await fetch('https://fal.run/fal-ai/flux/dev/image-to-image', {
+    // Step 2: Generate logo image via Together AI Flux
+    const generateImage = async (prompt, imageBase64 = null, strength = 0.75) => {
+      const isImg2Img = imageBase64 !== null
+      const body = {
+        model: isImg2Img ? 'black-forest-labs/FLUX.1-dev' : 'black-forest-labs/FLUX.1-schnell-Free',
+        prompt: `${prompt}, esports logo, game badge, centered composition, black background, ultra detailed, professional, 4k`,
+        width: 1024,
+        height: 1024,
+        steps: isImg2Img ? 28 : 4,
+        n: 1,
+        response_format: 'url'
+      }
+      if (isImg2Img) {
+        body.image_url = `data:image/png;base64,${imageBase64}`
+        body.image_strength = 1 - strength
+      }
+      const res = await fetch('https://api.together.xyz/v1/images/generations', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Key ${FAL_KEY}` },
-        body: JSON.stringify({
-          prompt: `${brief.logoPrompt}, esports logo, game badge, centered composition, black background, ultra detailed, professional, 4k`,
-          image_url: `data:image/png;base64,${logoBase64}`,
-          strength: 0.75,
-          num_inference_steps: 28,
-          num_images: 1
-        })
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOGETHER_KEY}` },
+        body: JSON.stringify(body)
       })
-    } else {
-      falLogoRes = await fetch('https://fal.run/fal-ai/flux/schnell', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Key ${FAL_KEY}` },
-        body: JSON.stringify({
-          prompt: `${brief.logoPrompt}, esports logo, game badge, centered composition, black background, ultra detailed, professional, 4k`,
-          image_size: 'square_hd',
-          num_inference_steps: 4,
-          num_images: 1
-        })
-      })
+      const data = await res.json()
+      return data.data?.[0]?.url || null
     }
 
-    const falLogoData = await falLogoRes.json()
-    const logoImageUrl = falLogoData.images?.[0]?.url || null
+    const logoImageUrl = await generateImage(brief.logoPrompt, logoBase64 || null, 0.75)
 
     // Step 3: Generate mascot if applicable
     let mascotImageUrl = null
     if (mascot) {
-      const falMascotRes = await fetch('https://fal.run/fal-ai/flux/schnell', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Key ${FAL_KEY}`
-        },
-        body: JSON.stringify({
-          prompt: `${brief.mascotPrompt}, game character art, esports mascot, full color, dramatic lighting, no background, ultra detailed`,
-          image_size: 'square_hd',
-          num_inference_steps: 4,
-          num_images: 1
-        })
-      })
-      const falMascotData = await falMascotRes.json()
-      mascotImageUrl = falMascotData.images?.[0]?.url || null
+      mascotImageUrl = await generateImage(
+        `${brief.mascotPrompt}, game character art, esports mascot, full color, dramatic lighting, no background, ultra detailed`
+      )
     }
 
     return {
